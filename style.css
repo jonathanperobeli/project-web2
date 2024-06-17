@@ -12,6 +12,12 @@
     width: 200px; /* Reduz a largura das imagens */
     height: auto;
 }
+.catItem p {
+    margin: 0;
+    padding: 5px 0;
+    text-align: center;
+    font-weight: bold;
+}
 .deleteBtn {
     position: absolute;
     top: 5px;
