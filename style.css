@@ -1,10 +1,20 @@
 body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     font-family: Arial, sans-serif;
     margin: 20px;
 }
 
 h1 {
     text-align: center;
+}
+
+input {
+    display: flex;
+    width: 150px;
+    padding: 10px;
 }
 
 #fetchCat, #showFavorites, #createCat {

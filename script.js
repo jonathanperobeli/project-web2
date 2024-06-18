@@ -1,25 +1,20 @@
+
 const apiKey = 'live_LsHNazQBwf0YVFhn5o1bfRGslDP7EOi3WzcMwBXFgeJD7iXJOWncjIINqMya5bYs';
-const subId = 'user-sub-id'; // Substitua pelo ID do seu usuário, se aplicável
 let catItems = [];
-let currentCatItem = null;
+let favoriteCats = []; 
+let breedNames = [];
 
-document.getElementById('fetchCat').addEventListener('click', async () => {
-    fetchCatImages();
-});
+loadFavoritesFromLocalStorage();
 
-document.getElementById('createCat').addEventListener('click', () => {
-    openModal();
-});
+document.getElementById('fetchCat').addEventListener('click', async () => fetchCatImages());
+document.getElementById('createCat').addEventListener('click', () => openModal());
+document.getElementById('showFavorites').addEventListener('click', () => showFavoriteCats());
 
-document.getElementById('showFavorites').addEventListener('click', () => {
-    showFavoriteCats();
-});
-
+// Carregar Gatos aleatórios
 async function fetchCatImages() {
     try {
         const response = await fetch(`https://api.thecatapi.com/v1/images/search?limit=10&has_breeds=1&api_key=${apiKey}`);
         const data = await response.json();
-
         data.forEach(catData => {
             const imageUrl = catData.url;
             const breedName = catData.breeds[0]?.name ? catData.breeds[0].name : 'Raça desconhecida';
@@ -62,7 +57,7 @@ async function fetchCatImages() {
             const favBtn = document.createElement('button');
             favBtn.innerText = '❤';
             favBtn.classList.add('favBtn');
-            favBtn.onclick = () => toggleFavourite(imageId, favBtn);
+            favBtn.onclick = () => toggleFavourite(catItem, imageId);
             buttons.appendChild(favBtn);
 
             catItem.appendChild(buttons)
@@ -75,52 +70,75 @@ async function fetchCatImages() {
     }
 }
 
-function openModal(breedLabel = null, catImage = null, catItem = null) {
-    currentCatItem = catItem;
+// Modal para Editar Gato
+// Função para abrir o modal de edição
+// Função para abrir o modal de edição
+// Função para abrir o modal de edição
+function openModal(breedData = null, catImage = null, catItem = null) {
     const modal = document.getElementById('modal');
     const closeBtn = document.querySelector('.close');
     const saveBtn = document.getElementById('saveEdit');
-    const catBreedInput = document.getElementById('catBreed');
-    const catImageUpload = document.getElementById('catImageUpload');
+    const catBreedDropdown = document.getElementById('catBreedDropdown');
     const currentCatImage = document.getElementById('currentCatImage');
 
     modal.style.display = 'block';
 
-    if (breedLabel) {
-        catBreedInput.value = breedLabel.innerText;
+    // Limpa o dropdown atual e adiciona as opções de raças
+    catBreedDropdown.innerHTML = '';
+    breedNames.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.innerText = name;
+        catBreedDropdown.appendChild(option);
+    });
+
+    // Seleciona a raça atual no dropdown, se existir
+    if (breedData && breedData.innerText) {
+        catBreedDropdown.value = breedData.innerText.trim(); // Seleciona a raça no dropdown
         currentCatImage.src = catImage.src;
     } else {
-        catBreedInput.value = '';
         currentCatImage.src = '';
     }
 
     closeBtn.onclick = () => modal.style.display = 'none';
     saveBtn.onclick = () => {
+        const breedLabel = catBreedDropdown.value; // Obtém a raça selecionada
         if (breedLabel) {
-            breedLabel.innerText = catBreedInput.value;
-            if (catImageUpload.files && catImageUpload.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    catImage.src = e.target.result;
-                    modal.style.display = 'none';
-                };
-                reader.readAsDataURL(catImageUpload.files[0]);
-            } else {
-                modal.style.display = 'none';
+            // Atualiza o label da raça no modal
+            if (breedData) {
+                breedData.innerText = breedLabel;
             }
-        } else {
-            createCat(catBreedInput.value, catImageUpload.files[0]);
+
+            console.log('Raça selecionada:', breedLabel);
             modal.style.display = 'none';
+        } else {
+            console.error('Nenhuma raça selecionada');
         }
     };
 
     window.onclick = (event) => {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
+        if (event.target == modal) modal.style.display = 'none';
     };
 }
 
+
+
+document.getElementById('searchBreed').addEventListener('input', () => {
+    const searchTerm = document.getElementById('searchBreed').value.toLowerCase();
+    const catContainer = document.getElementById('catContainer');
+    catContainer.innerHTML = ''; // Limpa o conteúdo atual do container
+
+    catItems.forEach(catItem => {
+        const breedLabel = catItem.querySelector('p').innerText.toLowerCase();
+
+        if (breedLabel.startsWith(searchTerm)) {
+            catContainer.appendChild(catItem); // Adiciona o catItem que corresponde à pesquisa
+        }
+    });
+});
+
+
+// Criar Gato
 function createCat(breedName, imageFile) {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -159,7 +177,7 @@ function createCat(breedName, imageFile) {
         const favBtn = document.createElement('button');
         favBtn.innerText = '❤';
         favBtn.classList.add('favBtn');
-        favBtn.onclick = () => toggleFavourite(null, favBtn);
+        favBtn.onclick = () => toggleFavourite(catItem);
         buttons.appendChild(favBtn);
 
         catItem.appendChild(buttons);
@@ -169,105 +187,85 @@ function createCat(breedName, imageFile) {
     reader.readAsDataURL(imageFile);
 }
 
-document.getElementById('searchBreed').addEventListener('input', (event) => {
-    const searchValue = event.target.value.toLowerCase();
-    catItems.forEach(catItem => {
-        const breedLabel = catItem.querySelector('p').innerText.toLowerCase();
-        if (breedLabel.startsWith(searchValue)) {
-            catItem.style.display = 'inline-block';
-        } else {
-            catItem.style.display = 'none';
-        }
-    });
-});
-
-async function toggleFavourite(imageId, favBtn) {
+// Carrega card de gato favorito
+function toggleFavourite(catItem) {
+    const favBtn = catItem.querySelector('.favBtn');
     const isFavourited = favBtn.classList.toggle('favourited');
+
+    const breedLabel = catItem.querySelector('p').innerText;
+    const catImage = catItem.querySelector('img').src;
+
     if (isFavourited) {
-        // Favoritar a imagem
-        try {
-            const rawBody = JSON.stringify({ image_id: imageId, sub_id: subId });
-            const response = await fetch('https://api.thecatapi.com/v1/favourites', {
-                method: 'POST',
-                headers: { 
-                    'x-api-key': apiKey,
-                    'Content-Type': 'application/json'
-                },
-                body: rawBody
-            });
-            const data = await response.json();
-            favBtn.dataset.favouriteId = data.id; // Armazena o ID do favorito
-        } catch (error) {
-            console.error('Error favouriting image:', error);
-            // Reverter o estado do botão em caso de erro
-            favBtn.classList.remove('favourited');
-        }
+        favoriteCats.push({ breed: breedLabel, image: catImage });
     } else {
-        // Desfavoritar a imagem
-        try {
-            const favouriteId = favBtn.dataset.favouriteId;
-            await fetch(`https://api.thecatapi.com/v1/favourites/${favouriteId}`, {
-                method: 'DELETE',
-                headers: { 'x-api-key': apiKey }
-            });
-        } catch (error) {
-            console.error('Error unfavouriting image:', error);
-            // Reverter o estado do botão em caso de erro
-            favBtn.classList.add('favourited');
-        }
+        favoriteCats = favoriteCats.filter(cat => cat.breed !== breedLabel);
     }
+
+    // Atualiza LocalStorage
+    saveFavoritesToLocalStorage();
 }
 
+function saveFavoritesToLocalStorage() {
+    localStorage.setItem('favoriteCats', JSON.stringify(favoriteCats));
+}
+function loadFavoritesFromLocalStorage() {
+    const storedFavorites = localStorage.getItem('favoriteCats');
+    if (storedFavorites) {
+        favoriteCats = JSON.parse(storedFavorites);
+    }
+}
+// Mostrar Gatos Favoritos
 async function showFavoriteCats() {
+    const catContainer = document.getElementById('catContainer');
+    catContainer.innerHTML = ''; // Limpa o container para mostrar apenas favoritos
+
+    favoriteCats.forEach(favCat => {
+        const catItem = document.createElement('div');
+        catItem.classList.add('cat-item');
+
+        const catImage = document.createElement('img');
+        catImage.src = favCat.image;
+        catItem.appendChild(catImage);
+
+        const breedLabel = document.createElement('p');
+        breedLabel.innerText = favCat.breed;
+        catItem.appendChild(breedLabel);
+
+        const buttons = document.createElement('div');
+        buttons.classList.add('buttons-div');
+
+        const editBtn = document.createElement('button');
+        editBtn.innerText = 'E';
+        editBtn.classList.add('editBtn');
+        editBtn.onclick = () => openModal(breedLabel, catImage, catItem);
+        buttons.appendChild(editBtn);
+
+        const favBtn = document.createElement('button');
+        favBtn.innerText = '❤';
+        favBtn.classList.add('favBtn', 'favourited');
+        favBtn.onclick = () => toggleFavourite(catItem);
+        buttons.appendChild(favBtn);
+
+        catItem.appendChild(buttons);
+        catContainer.appendChild(catItem);
+    });
+}
+
+
+
+// Array para armazenar os nomes das raças
+
+// Função para carregar nomes das raças da API
+async function loadBreedNames() {
     try {
-        const response = await fetch(`https://api.thecatapi.com/v1/favourites?sub_id=${subId}`, {
-            headers: { 'x-api-key': apiKey }
-        });
+        const response = await fetch('https://api.thecatapi.com/v1/breeds');
         const data = await response.json();
-
-        const catContainer = document.getElementById('catContainer');
-        catContainer.innerHTML = ''; // Limpa o container para mostrar apenas favoritos
-
-        for (const fav of data) {
-            const imageId = fav.image_id;
-
-            // Fetch the image details to get the breed information
-            const imageResponse = await fetch(`https://api.thecatapi.com/v1/images/${imageId}`, {
-                headers: { 'x-api-key': apiKey }
-            });
-            const imageData = await imageResponse.json();
-            const imageUrl = imageData.url;
-            const breedName = imageData.breeds[0]?.name ? imageData.breeds[0].name : 'Raça desconhecida';
-
-            const catItem = document.createElement('div');
-            catItem.classList.add('cat-item');
-
-            const catImage = document.createElement('img');
-            catImage.src = imageUrl;
-            catItem.appendChild(catImage);
-
-            const breedLabel = document.createElement('p');
-            breedLabel.innerText = breedName;
-            catItem.appendChild(breedLabel);
-
-            const buttons = document.createElement('div');
-            buttons.classList.add('buttons-div');
-
-            const favBtn = document.createElement('button');
-            favBtn.innerText = '❤';
-            favBtn.classList.add('favBtn', 'favourited');
-            favBtn.dataset.favouriteId = fav.id;
-            favBtn.onclick = () => toggleFavourite(imageId, favBtn);
-            buttons.appendChild(favBtn);
-
-            catItem.appendChild(buttons);
-            catContainer.appendChild(catItem);
-            catItems.push(catItem);
-        }
+        breedNames = data.map(breed => breed.name);
+        console.log(breedNames)
     } catch (error) {
-        console.error('Error fetching favourites:', error);
+        console.error('Erro ao carregar nomes das raças:', error);
     }
 }
 
-// Inicializa a aplicação
-fetchCatImages(); // Inicialmente busca imagens de gatos
+// Chamar a função para carregar os nomes das raças
+loadBreedNames();
