@@ -1,35 +1,147 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+#fetchCat, #showFavorites, #createCat {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#fetchCat:hover, #showFavorites:hover, #createCat:hover {
+    background-color: #45a049;
+}
+
 #catContainer {
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
     gap: 20px;
     margin-top: 20px;
 }
-.catItem {
+
+.cat-item {
     position: relative;
-    display: inline-block;
-}
-.catItem img {
-    width: 200px; /* Reduz a largura das imagens */
-    height: auto;
-}
-.catItem p {
-    margin: 0;
-    padding: 5px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
     text-align: center;
+    width: 200px;
+    height: 300px;
+    margin: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.cat-item img {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Estilos botões */
+
+.buttons-div {
+    display: flex;
+}
+
+.deleteBtn, .editBtn, .favBtn {
+    display: block;
+    margin: 5px auto;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 3px;
+}
+
+.deleteBtn {
+    background-color: #f44336;
+    color: white;
+}
+
+.deleteBtn:hover {
+    background-color: #da190b;
+}
+
+.editBtn {
+    background-color: #008CBA;
+    color: white;
+}
+
+.editBtn:hover {
+    background-color: #006c84;
+}
+
+.favBtn {
+    background-color: #e0e0e0;
+}
+
+.favBtn:hover {
+    background-color: #cccccc;
+}
+
+.favBtn.favourited {
+    background-color: #FFD700;
+}
+
+/* Estilos modal */
+
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    padding-top: 60px; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; 
+    max-width: 500px;
+    text-align: center;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
     font-weight: bold;
 }
-.deleteBtn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: red;
-    color: white;
-    border: none;
-    padding: 5px;
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
     cursor: pointer;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    line-height: 10px;
+}
+
+#currentCatImage {
+    width: 100%;
+    height: auto;
+    margin-top: 10px;
+    border-radius: 5px;
 }

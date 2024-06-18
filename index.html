@@ -7,9 +7,34 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Random Cat Image</h1>
+    <h1><a href="/" style="color: black; text-decoration: none;">Random Cat Image</a></h1>
+
+    <!-- Para Mostrar um novo Gato -->
     <button id="fetchCat">Get a Random Cat</button>
-    <div id="catContainer"></div>
+
+    <!-- Para listar gatos marcados como favorito -->
+    <button id="showFavorites">Show Favorites</button>
+
+    <!-- Para criar um novo gato -->
+    <button id="createCat">Create Cat</button>
+
+    <!-- Pesquisar gatos por nome -->
+    <input type="text" id="searchBreed" placeholder="Search by breed">
+
+    <div id="catContainer" class="cat-container"></div>
+    
+    <!-- Modal, para editar gatinhos -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Cat</h2>
+            <input type="text" id="catBreed" placeholder="Enter new breed">
+            <input type="file" id="catImageUpload" accept="image/*">
+            <img id="currentCatImage" src="" alt="Current Cat Image">
+            <button id="saveEdit">Save</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
