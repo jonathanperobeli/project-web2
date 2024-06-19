@@ -26,9 +26,20 @@
             <h2>Edit Cat</h2>
             <label for="catBreedDropdown">Select breed:</label>
             <select id="catBreedDropdown"></select>
+            <button id="addBreedButton">Add New Breed</button>
             <input type="file" id="catImageUpload" accept="image/*">
             <img id="currentCatImage" src="" alt="Current Cat Image">
             <button id="saveEdit">Save</button>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar nova raça -->
+    <div id="addBreedModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Breed</h2>
+            <input type="text" id="newBreedName" placeholder="New Breed Name">
+            <button id="saveNewBreed">Save New Breed</button>
         </div>
     </div>
 
