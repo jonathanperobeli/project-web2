@@ -9,6 +9,7 @@ document.getElementById('fetchCat').addEventListener('click', async () => fetchC
 document.getElementById('createCat').addEventListener('click', () => openModal());
 document.getElementById('showFavorites').addEventListener('click', () => showFavoriteCats());
 
+// Carregar Gatos Aleatórios
 async function fetchCatImages() {
     try {
         const response = await fetch(`https://api.thecatapi.com/v1/images/search?limit=10&has_breeds=1&api_key=${apiKey}`);
@@ -64,6 +65,7 @@ async function fetchCatImages() {
 }
 
 function openModal(breedData = null, catImage = null, catItem = null) {
+    // Criando Botões
     const modal = document.getElementById('modal');
     const closeBtn = document.querySelector('.close');
     const saveBtn = document.getElementById('saveEdit');
@@ -74,7 +76,7 @@ function openModal(breedData = null, catImage = null, catItem = null) {
     const addBreedModal = document.getElementById('addBreedModal');
     const newBreedNameInput = document.getElementById('newBreedName');
     const saveNewBreedButton = document.getElementById('saveNewBreed');
-    const updateBreedButton = document.getElementById('updateBreedButton'); // Novo botão
+    const updateBreedButton = document.getElementById('updateBreedButton');
 
     catBreedDropdown.innerHTML = '';
     breedNames.forEach(breed => {
@@ -143,13 +145,15 @@ function openModal(breedData = null, catImage = null, catItem = null) {
         }
     };
 
-    updateBreedButton.onclick = () => openUpdateBreedModal(catBreedDropdown.value); // Evento para abrir o modal de atualização de raça
+    updateBreedButton.onclick = () => openUpdateBreedModal(catBreedDropdown.value);
 }
 
 function openUpdateBreedModal(selectedBreed) {
     const updateModal = document.getElementById('updateBreedModal');
     const closeBtn = updateModal.querySelector('.close');
     const saveBtn = document.getElementById('saveUpdatedBreed');
+    const deleteBtn = document.getElementById('deleteBreed');
+
     const updateCatBreedDropdown = document.getElementById('updateCatBreedDropdown');
     const updatedBreedNameInput = document.getElementById('updatedBreedName');
 
@@ -179,11 +183,25 @@ function openUpdateBreedModal(selectedBreed) {
 
                 catBreedDropdown.options[breedIndex].innerText = newBreedName;
                 updateCatBreedDropdown.options[breedIndex].innerText = newBreedName;
-                
+
                 updateModal.style.display = 'none';
             }
         } else {
             console.error('Selecione uma raça e forneça um novo nome');
+        }
+    };
+
+    deleteBtn.onclick = () => {
+        const selectedBreed = updateCatBreedDropdown.value;
+        if (selectedBreed) {
+            const breedIndex = breedNames.indexOf(selectedBreed);
+            if (breedIndex !== -1) {
+                breedNames.splice(breedIndex, 1); 
+                updateCatBreedDropdown.remove(breedIndex); 
+                updateModal.style.display = 'none';
+            }
+        } else {
+            console.error('Selecione uma raça para deletar');
         }
     };
 
