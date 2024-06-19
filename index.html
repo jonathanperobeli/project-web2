@@ -30,6 +30,7 @@
             <input type="file" id="catImageUpload" accept="image/*">
             <img id="currentCatImage" src="" alt="Current Cat Image">
             <button id="saveEdit">Save</button>
+            <button id="updateBreedButton">Update Breed</button> <!-- Botão dentro do modal -->
         </div>
     </div>
 
@@ -40,6 +41,19 @@
             <h2>Add New Breed</h2>
             <input type="text" id="newBreedName" placeholder="New Breed Name">
             <button id="saveNewBreed">Save New Breed</button>
+        </div>
+    </div>
+
+    <!-- Modal para atualizar raça existente -->
+    <div id="updateBreedModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Update Breed</h2>
+            <label for="updateCatBreedDropdown">Select Breed:</label>
+            <select id="updateCatBreedDropdown"></select>
+            <label for="updatedBreedName">New Breed Name:</label>
+            <input type="text" id="updatedBreedName" placeholder="New Breed Name">
+            <button id="saveUpdatedBreed">Save</button>
         </div>
     </div>
 
