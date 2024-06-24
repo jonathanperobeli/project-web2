@@ -9,17 +9,70 @@ document.getElementById('fetchCat').addEventListener('click', async () => fetchC
 document.getElementById('createCat').addEventListener('click', () => openModal());
 document.getElementById('showFavorites').addEventListener('click', () => showFavoriteCats());
 
+// Objeto para representar um gato
+class Cat {
+    constructor(imageUrl, breedName, imageId) {
+        this.imageUrl = imageUrl;
+        this.breedName = breedName;
+        this.imageId = imageId;
+    }
+}
+
+document.getElementById('deleteCatButton').addEventListener('click', () => deleteSelectedCat());
+
+function deleteSelectedCat() {
+    const catBreedDropdown = document.getElementById('catBreedDropdown');
+    const breedLabel = catBreedDropdown.value;
+
+    if (breedLabel) {
+        const catItemToDelete = catItems.find(cat => cat.breedName === breedLabel);
+        if (catItemToDelete) {
+            const catContainer = document.getElementById('catContainer');
+            const catElements = catContainer.getElementsByClassName('cat-item');
+
+            for (let i = 0; i < catElements.length; i++) {
+                const catElement = catElements[i];
+                const catBreedElement = catElement.querySelector('p');
+                if (catBreedElement.innerText === breedLabel) {
+                    catElement.remove();
+                    catItems = catItems.filter(cat => cat !== catItemToDelete);
+                    saveCatItemsToLocalStorage(); // Salvar após excluir
+                    break; // Terminar o loop após encontrar e excluir o gato
+                }
+            }
+        } else {
+            console.error('Gato não encontrado para exclusão');
+        }
+    } else {
+        console.error('Nenhuma raça selecionada para exclusão');
+    }
+}
+
+
+
+
 // Carregar Gatos Aleatórios
 async function fetchCatImages() {
     try {
         const response = await fetch(`https://api.thecatapi.com/v1/images/search?limit=10&has_breeds=1&api_key=${apiKey}`);
         const data = await response.json();
+
+        // Limpar container antes de adicionar novos gatos
+        const catContainer = document.getElementById('catContainer');
+        catContainer.innerHTML = '';
+        catItems = [];
+
+        // Loop para carregar cada gato
         data.forEach(catData => {
             const imageUrl = catData.url;
             const breedName = catData.breeds[0]?.name ? catData.breeds[0].name : 'Raça desconhecida';
             const imageId = catData.id;
 
-            const catContainer = document.getElementById('catContainer');
+            // Criar objeto Cat
+            const cat = new Cat(imageUrl, breedName, imageId);
+            catItems.push(cat);
+
+            // Criar elementos HTML para exibir o gato
             const catItem = document.createElement('div');
             catItem.classList.add('cat-item');
 
@@ -39,7 +92,7 @@ async function fetchCatImages() {
             deleteBtn.classList.add('deleteBtn');
             deleteBtn.onclick = () => {
                 catItem.remove();
-                catItems = catItems.filter(item => item !== catItem);
+                catItems = catItems.filter(item => item !== cat);
             };
             buttons.appendChild(deleteBtn);
 
@@ -57,33 +110,23 @@ async function fetchCatImages() {
 
             catItem.appendChild(buttons);
             catContainer.appendChild(catItem);
-            catItems.push(catItem);
         });
     } catch (error) {
         console.error('Erro na API', error);
     }
 }
 
-
-// Modal para criar Gatos
+// Modal para criar e editar Gatos
 function openModal(breedData = null, catImage = null, catItem = null) {
-    // Criando Botões
     const modal = document.getElementById('modal');
     const closeBtn = document.querySelector('.close');
-    const closeBreedModal = document.querySelector('.close-breed-modal')
     const saveBtn = document.getElementById('saveEdit');
     const catBreedDropdown = document.getElementById('catBreedDropdown');
     const catImageUpload = document.getElementById('catImageUpload');
     const currentCatImage = document.getElementById('currentCatImage');
-    const addBreedButton = document.getElementById('addBreedButton');
-    const addBreedModal = document.getElementById('addBreedModal');
-    const newBreedNameInput = document.getElementById('newBreedName');
-    const saveNewBreedButton = document.getElementById('saveNewBreed');
-    const updateBreedButton = document.getElementById('updateBreedButton');
-
     const modalTitle = document.getElementById('modal-title');
 
-    // carregar raças
+    // Loop para carregar as raças no dropdown
     catBreedDropdown.innerHTML = '';
     breedNames.forEach(breed => {
         const option = document.createElement('option');
@@ -92,20 +135,20 @@ function openModal(breedData = null, catImage = null, catItem = null) {
         catBreedDropdown.appendChild(option);
     });
 
-    // Condição: Se é Criar ou Editar 
+    // Verificar se é criação ou edição
     if (breedData && catImage) {
         catBreedDropdown.value = breedData.innerText;
         currentCatImage.src = catImage.src;
-        modalTitle.innerText = 'Atualizar Gato'
+        modalTitle.innerText = 'Atualizar Gato';
     } else {
-        catBreedDropdown.value = '';
+        catBreedDropdown.value = ''; // Limpar seleção anterior
         currentCatImage.src = '';
-        modalTitle.innerText = 'Criar Gato'
+        modalTitle.innerText = 'Criar Gato';
     }
 
     modal.style.display = 'block';
 
-    // Atualização
+    // Atualizar imagem do gato ao selecionar um arquivo
     catImageUpload.addEventListener('change', () => {
         const file = catImageUpload.files[0];
         const reader = new FileReader();
@@ -115,44 +158,56 @@ function openModal(breedData = null, catImage = null, catItem = null) {
         reader.readAsDataURL(file);
     });
 
-    // fechar modal
+    // Fechar modal
     closeBtn.onclick = () => modal.style.display = 'none';
-    closeBreedModal.onclick = () => addBreedModal.style.display = 'none'
 
-    // criar gato
-    saveBtn.onclick = () => {
+    // Salvar gato
+    saveBtn.onclick = (event) => {
+        event.preventDefault(); // Evitar comportamento padrão do formulário
+
         const breedLabel = catBreedDropdown.value;
-        if (breedLabel) 
+        if (breedLabel) {
             if (breedData) {
                 breedData.innerText = breedLabel;
-            if (catItem) {
-                const catItemImg = catItem.querySelector('img');
-                catItemImg.src = currentCatImage.src;
+                if (catItem) {
+                    const catIndex = catItems.findIndex(cat => cat.imageUrl === catImage.src);
+                    if (catIndex !== -1) {
+                        catItems[catIndex].breedName = breedLabel;
+                        const catItemImg = catItem.querySelector('img');
+                        catItemImg.src = currentCatImage.src;
+                    }
+                } else {
+                    const imageFile = catImageUpload.files[0];
+                    createCat(breedLabel, imageFile);
+                }
+                modal.style.display = 'none';
             } else {
-                const breedName = breedLabel;
                 const imageFile = catImageUpload.files[0];
-                createCat(breedName, imageFile);
+                createCat(breedLabel, imageFile);
+                modal.style.display = 'none';
             }
-            modal.style.display = 'none';
         } else {
             console.error('Nenhuma raça selecionada');
         }
     };
 
-    window.onclick = (event) => {
-        if (event.target == modal) modal.style.display = 'none';
-    };
+    // Adicionar nova raça
+    const addBreedButton = document.getElementById('addBreedButton');
+    const addBreedModal = document.getElementById('addBreedModal');
+    const closeBreedModal = document.querySelector('.close-breed-modal');
+  
+    addBreedButton.onclick = (e) => { 
+            e.preventDefault()
+            addBreedModal.style.display = 'block';
+    }
+    closeBreedModal.onclick = () => { 
+            addBreedModal.style.display = 'none';
+    }
 
-    // Adicionar raça nova
-    addBreedButton.onclick = () => addBreedModal.style.display = 'block';
-
+    const saveNewBreedButton = document.getElementById('saveNewBreed');
     saveNewBreedButton.onclick = () => {
+        const newBreedNameInput = document.getElementById('newBreedName');
         const newBreedName = newBreedNameInput.value.trim();
-
-
-        closeBtn.onclick = () => addBreedModal.style.display = 'none';
-
-        
         if (newBreedName) {
             breedNames.push(newBreedName);
             const option = document.createElement('option');
@@ -160,95 +215,46 @@ function openModal(breedData = null, catImage = null, catItem = null) {
             option.innerText = newBreedName;
             catBreedDropdown.appendChild(option);
             addBreedModal.style.display = 'none';
+        } else {
+            console.error('Nome da raça não pode ser vazio');
         }
     };
-
-
-
-    updateBreedButton.onclick = () => openUpdateBreedModal(catBreedDropdown.value);
 }
 
-// function openUpdateBreedModal(selectedBreed) {
-//     const updateModal = document.getElementById('updateBreedModal');
-//     const closeBtn = updateModal.querySelector('.close');
-//     const saveBtn = document.getElementById('saveUpdatedBreed');
-//     const deleteBtn = document.getElementById('deleteBreed');
 
-//     const updateCatBreedDropdown = document.getElementById('updateCatBreedDropdown');
-//     const updatedBreedNameInput = document.getElementById('updatedBreedName');
+document.getElementById('searchBreed').addEventListener('input', filterCatsByBreed);
 
-//     updateCatBreedDropdown.innerHTML = '';
-//     breedNames.forEach(breed => {
-//         const option = document.createElement('option');
-//         option.value = breed;
-//         option.innerText = breed;
-//         updateCatBreedDropdown.appendChild(option);
-//     });
+// Função para filtrar gatos por nome da raça
+function filterCatsByBreed() {
+    const searchInput = document.getElementById('searchBreed').value.toLowerCase().trim();
 
-//     updateCatBreedDropdown.value = selectedBreed;
-//     updatedBreedNameInput.value = '';
+    // Filtrar gatos com base no nome da raça
+    const filteredCats = catItems.filter(cat => cat.breedName.toLowerCase().includes(searchInput));
 
-//     updateModal.style.display = 'block';
-
-//     closeBtn.onclick = () => updateModal.style.display = 'none';
-//     saveBtn.onclick = () => {
-//         const selectedBreed = updateCatBreedDropdown.value;
-//         const newBreedName = updatedBreedNameInput.value.trim();
-//         if (selectedBreed && newBreedName) {
-//             const breedIndex = breedNames.indexOf(selectedBreed);
-//             if (breedIndex !== -1) {
-//                 breedNames[breedIndex] = newBreedName;
-//                 const catBreedDropdown = document.getElementById('catBreedDropdown');
-//                 const updateCatBreedDropdown = document.getElementById('updateCatBreedDropdown');
-
-//                 catBreedDropdown.options[breedIndex].innerText = newBreedName;
-//                 updateCatBreedDropdown.options[breedIndex].innerText = newBreedName;
-
-//                 updateModal.style.display = 'none';
-//             }
-//         } else {
-//             console.error('Selecione uma raça e forneça um novo nome');
-//         }
-//     };
-
-//     deleteBtn.onclick = () => {
-//         const selectedBreed = updateCatBreedDropdown.value;
-//         if (selectedBreed) {
-//             const breedIndex = breedNames.indexOf(selectedBreed);
-//             if (breedIndex !== -1) {
-//                 breedNames.splice(breedIndex, 1); 
-//                 updateCatBreedDropdown.remove(breedIndex); 
-//                 updateModal.style.display = 'none';
-//             }
-//         } else {
-//             console.error('Selecione uma raça para deletar');
-//         }
-//     };
-
-//     window.onclick = (event) => {
-//         if (event.target == updateModal) updateModal.style.display = 'none';
-//     };
-// }
-
-document.getElementById('searchBreed').addEventListener('input', () => {
-    const searchTerm = document.getElementById('searchBreed').value.toLowerCase();
+    // Limpar o container antes de adicionar os gatos filtrados
     const catContainer = document.getElementById('catContainer');
     catContainer.innerHTML = '';
 
-    catItems.forEach(catItem => {
-        const breedLabel = catItem.querySelector('p').innerText.toLowerCase();
-
-        if (breedLabel.startsWith(searchTerm)) {
-            catContainer.appendChild(catItem);
-        }
+    // Adicionar gatos filtrados ao container
+    filteredCats.forEach(cat => {
+        const catItem = createCatElement(cat);
+        catContainer.appendChild(catItem);
     });
-});
+}
 
+// Função para criar um novo gato
 function createCat(breedName, imageFile) {
     const reader = new FileReader();
     reader.onload = (e) => {
         const imageUrl = e.target.result;
 
+        // Criar objeto Cat
+        const cat = new Cat(imageUrl, breedName, Date.now()); // Usando Date.now() como ID único temporário
+
+        // Adicionar o novo gato à lista catItems
+        catItems.push(cat);
+
+        // Exibir o novo gato no catContainer
         const catContainer = document.getElementById('catContainer');
         const catItem = document.createElement('div');
         catItem.classList.add('cat-item');
@@ -264,21 +270,24 @@ function createCat(breedName, imageFile) {
         const buttons = document.createElement('div');
         buttons.classList.add('buttons-div');
 
+        // Botão para excluir gato
         const deleteBtn = document.createElement('button');
         deleteBtn.innerText = 'X';
         deleteBtn.classList.add('deleteBtn');
         deleteBtn.onclick = () => {
             catItem.remove();
-            catItems = catItems.filter(item => item !== catItem);
+            catItems = catItems.filter(item => item !== cat);
         };
         buttons.appendChild(deleteBtn);
 
+        // Botão para editar gato
         const editBtn = document.createElement('button');
         editBtn.innerText = 'E';
         editBtn.classList.add('editBtn');
         editBtn.onclick = () => openModal(breedLabel, catImage, catItem);
         buttons.appendChild(editBtn);
 
+        // Botão de favorito
         const favBtn = document.createElement('button');
         favBtn.innerText = '❤';
         favBtn.classList.add('favBtn');
@@ -287,31 +296,34 @@ function createCat(breedName, imageFile) {
 
         catItem.appendChild(buttons);
         catContainer.appendChild(catItem);
-        catItems.push(catItem);
     };
     reader.readAsDataURL(imageFile);
 }
 
+// Função para marcar/desmarcar como favorito
 function toggleFavourite(catItem) {
     const favBtn = catItem.querySelector('.favBtn');
     const isFavourited = favBtn.classList.toggle('favourited');
 
     const breedLabel = catItem.querySelector('p').innerText;
-    const catImage = catItem.querySelector('img').src;
+    const cat = catItems.find(cat => cat.breedName === breedLabel);
 
     if (isFavourited) {
-        favoriteCats.push({ breed: breedLabel, image: catImage });
+        favoriteCats.push({ breed: cat.breedName, image: cat.imageUrl });
     } else {
-        favoriteCats = favoriteCats.filter(cat => cat.breed !== breedLabel);
+        favoriteCats = favoriteCats.filter(favCat => favCat.breed !== cat.breedName);
     }
 
+    // Salvar favoritos no armazenamento local
     saveFavoritesToLocalStorage();
 }
 
+// Função para salvar favoritos no armazenamento local
 function saveFavoritesToLocalStorage() {
     localStorage.setItem('favoriteCats', JSON.stringify(favoriteCats));
 }
 
+// Carregar favoritos do armazenamento local
 function loadFavoritesFromLocalStorage() {
     const storedFavorites = localStorage.getItem('favoriteCats');
     if (storedFavorites) {
@@ -319,10 +331,12 @@ function loadFavoritesFromLocalStorage() {
     }
 }
 
+// Mostrar gatos favoritos
 async function showFavoriteCats() {
     const catContainer = document.getElementById('catContainer');
     catContainer.innerHTML = '';
 
+    // Loop para mostrar gatos favoritos
     favoriteCats.forEach(favCat => {
         const catItem = document.createElement('div');
         catItem.classList.add('cat-item');
@@ -341,7 +355,12 @@ async function showFavoriteCats() {
         const editBtn = document.createElement('button');
         editBtn.innerText = 'E';
         editBtn.classList.add('editBtn');
-        editBtn.onclick = () => openModal(breedLabel, catImage, catItem);
+        editBtn.onclick = () => {
+            const cat = catItems.find(cat => cat.breedName === favCat.breed);
+            if (cat) {
+                openModal(breedLabel, catImage, catItem);
+            }
+        };
         buttons.appendChild(editBtn);
 
         const favBtn = document.createElement('button');
@@ -355,13 +374,12 @@ async function showFavoriteCats() {
     });
 }
 
-// Carrega as Raças
+// Carregar todas as raças disponíveis
 async function loadBreedNames() {
     try {
         const response = await fetch('https://api.thecatapi.com/v1/breeds');
         const data = await response.json();
         breedNames = data.map(breed => breed.name);
-        console.log(breedNames);
     } catch (error) {
         console.error('Erro ao carregar nomes das raças:', error);
     }

@@ -15,33 +15,36 @@
     <!-- Para criar um novo gato -->
     <button id="createCat">Criar Gato</button>
     <!-- Pesquisar gatos por nome -->
-    <input type="text" id="searchBreed" placeholder="Pesquisar por raça">
+    <!-- <input type="text" id="searchBreed" placeholder="Pesquisar por raça"> -->
 
     <div id="catContainer" class="cat-container"></div>
     
     <!-- Modal -->
     <div id="modal" class="modal">
         <div class="modal-content">
-            <div style="width: 100%;">
-                <span class="close">&times;</span>
-                <h2 id="modal-title">Criar Gato</h2>
-                <div class="modal-dropdown">
-                    <div>
-                        <label for="catBreedDropdown">Selecionar Raça:</label>
-                        <select id="catBreedDropdown"></select>
+            <form id="catForm">
+                <div style="width: 100%;">
+                    <span class="close">&times;</span>
+                    <h2 id="modal-title">Criar Gato</h2>
+                    <div class="modal-dropdown">
+                        <div>
+                            <label for="catBreedDropdown">Selecionar Raça:</label>
+                            <select id="catBreedDropdown" name="breed"></select>
+                        </div>
+                        <button id="deleteBreedButton">Excluir Raça</button> <!-- Novo botão para excluir raça -->
+                        <button id="addBreedButton">Adicionar nova Raça</button>
                     </div>
-                    <button id="addBreedButton">Adicionar nova Raça</button>
-                </div>
 
-                <label for="catImageUpload" class="custom-file-upload">Selcionar Foto</label>
-                <input id="catImageUpload" type="file" />
-                <div class="modal-img">
-                    <img id="currentCatImage" src="" alt="Nenhuma foto selecionada ainda...">
-                 </div>
-                <div class="modal-buttons-footer">
-                    <button id="saveEdit">Salvar</button>
+                    <label for="catImageUpload" class="custom-file-upload">Selcionar Foto</label>
+                    <input id="catImageUpload" type="file" name="catImage" />
+                    <div class="modal-img">
+                        <img id="currentCatImage" src="" alt="Nenhuma foto selecionada ainda...">
+                     </div>
+                    <div class="modal-buttons-footer">
+                        <button type="submit" id="saveEdit">Salvar</button>
+                    </div>
                 </div>
-        </div>
+            </form>
         </div>
     </div>
 
@@ -54,35 +57,34 @@
                 <div class="modal-add-breed">
                     <input type="text" id="newBreedName" placeholder="Nome da nova Raça">
                     <button style="margin: 10px;" id="saveNewBreed">Salvar nova Raça</button>
-            </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Modal para atualizar raça existente -->
-<div id="updateBreedModal" class="modal">
-    <div class="modal-content">
-        <div style="width: 100%;">
-            <span class="close">&times;</span>
-            <h2>Update Breed</h2>
-            <div class="updateBreedInput">
-                <div style="display: flex; justify-content: center; align-items: center;">
-                    <label style="width: 200px;" for="updateCatBreedDropdown">Selecionar Raça:</label>
-                    <select style="margin-left: 10px;" id="updateCatBreedDropdown"></select>
+    <div id="updateBreedModal" class="modal">
+        <div class="modal-content">
+            <div style="width: 100%;">
+                <span class="close">&times;</span>
+                <h2>Update Breed</h2>
+                <div class="updateBreedInput">
+                    <div style="display: flex; justify-content: center; align-items: center;">
+                        <label style="width: 200px;" for="updateCatBreedDropdown">Selecionar Raça:</label>
+                        <select style="margin-left: 10px;" id="updateCatBreedDropdown"></select>
+                    </div>
+                    <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px; margin-left: 7px;">
+                        <label style="width: 200px;" for="updatedBreedName">Nome da nova Raça: </label>
+                        <input style="width: 154px;" type="text" id="updatedBreedName" placeholder="Nome da nova raça">
+                    </div>
                 </div>
-                <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px; margin-left: 7px;">
-                    <label style="width: 200px;" for="updatedBreedName">Nome da nova Raça: </label>
-                    <input style="width: 154px;" type="text" id="updatedBreedName" placeholder="Nome da nova raça">
+                <div class="modal-buttons-footer" style="margin-top: 20px;">
+                    <button id="saveUpdatedBreed">Salvar</button>
+                    <button id="deleteBreed">Deletar Raça</button> <!-- Novo botão para deletar raça -->
                 </div>
-            </div>
-            <div class="modal-buttons-footer" style="margin-top: 20px;">
-                <button id="saveUpdatedBreed">Salvar</button>
-                <button id="deleteBreed">Deletar Raça</button> <!-- Novo botão para deletar raça -->
             </div>
         </div>
     </div>
-</div>
-
 
     <script src="script.js"></script>
 </body>
