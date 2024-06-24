@@ -1,3 +1,5 @@
+
+
 body {
     display: flex;
     flex-direction: column;
@@ -5,6 +7,8 @@ body {
     align-items: center;
     font-family: Arial, sans-serif;
     margin: 20px;
+
+    color: #141604;
 }
 
 h1 {
@@ -17,6 +21,8 @@ input {
     padding: 10px;
 }
 
+
+/* Modal */
 #fetchCat, #showFavorites, #createCat {
     display: block;
     margin: 10px auto;
@@ -66,7 +72,9 @@ input {
 /* Estilos botões */
 
 .buttons-div {
+    width: 100%;
     display: flex;
+    justify-content: space-between;
 }
 
 .deleteBtn, .editBtn, .favBtn {
@@ -111,6 +119,7 @@ input {
 
 /* Estilos modal */
 
+
 .modal {
     display: none; 
     position: fixed; 
@@ -126,7 +135,10 @@ input {
 }
 
 .modal-content {
-    background-color: #fefefe;
+    display: flex;
+    justify-content: center;
+
+    background-color: #FAFCEF;
     margin: 5% auto;
     padding: 20px;
     border: 1px solid #888;
@@ -135,7 +147,103 @@ input {
     text-align: center;
 }
 
-.close {
+.modal-dropdown {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+.modal button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: #A0E98F;
+    border: none;
+    border-radius: 6px;
+}
+
+.modal select {
+    padding: 10px;
+    border: none;
+    background-color: #f0f4cc;
+    border-radius: 4px;   
+}
+
+.modal input[type="file"] {
+    display: none;
+}
+
+.modal input {
+    height: 16px;
+    padding: 10px;
+    border: none;
+    background-color: #f0f4cc;
+    border-radius: 4px;   
+
+}
+
+.custom-file-upload {
+    display: flex;
+    width: 120px;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f4cc;
+    margin: 10px;
+    margin-top: 20px;
+    padding: 5px;
+    border-radius: 6px;
+}
+
+
+.modal-img {
+    display: flex;
+    width: 400px;
+    height: 400px;
+    border-radius: 5px;
+    margin: auto;
+    margin-top: 10px;
+    justify-content: center;
+    align-items: center; 
+    overflow: hidden;
+}
+
+#currentCatImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}  
+
+.modal-add-breed {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 10px;
+}
+
+.updateBreedInput {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.modal-buttons-footer {
+    display: flex;
+    margin: 10px;
+    justify-content: center;
+}
+
+.modal-buttons-footer button {
+
+    margin-left: 10px;
+}
+
+.close, .close-breed-modal {
     color: #aaa;
     float: right;
     font-size: 28px;
@@ -143,15 +251,10 @@ input {
 }
 
 .close:hover,
-.close:focus {
+.close:focus,
+.close-breed-modal:hover,
+.close-breed-modal:focus {
     color: black;
     text-decoration: none;
     cursor: pointer;
-}
-
-#currentCatImage {
-    width: 100%;
-    height: auto;
-    margin-top: 10px;
-    border-radius: 5px;
 }
